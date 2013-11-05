@@ -85,11 +85,11 @@ int main(int argc, char **argv)
 	weeks = atoi(argv[1]);
 	int matrixWeekEnd[N][N]; // matricea de la sfarsitul saptamanii
 	initializeMatrix(matrixWeekEnd);
-	int colorsCopy[Nc];
+	int current = Nc;
 	
 	for (week = 1; week <= weeks; week++) {
 		
-		copyArray(colorsCopy,colors,Nc);
+	//	copyArray(colorsCopy,colors,Nc);
 		initializeArray(colors,Nc,0);
 		//pentru fiecare senator determin noua lui culoare
 		for (i = 0; i < N; i++)
@@ -103,16 +103,64 @@ int main(int argc, char **argv)
 				initializeArray(dist,Nc, N);
 				//pentru fiecare culoare determin distanta minima
 				// de la senatorul (i,j) la un senator de culoare k
-				for (l = 0; l < N; l++)
-					for (m = 0; m < N; m++)
+				int radius = 1; //raza
+				int nr = 0; //distantele descoperite
+				
+				while (nr != current && radius != N)
+				{
+					int down,up,left,right;
+					down = i - radius;
+					up = i + radius;
+					left = j - radius;
+					right = j + radius;
+					if (down < 0)
+						down = 0;
+					if (up > N - 1)
+						up = N - 1;
+					if (left < 0)
+						left = 0;
+					if (right > N - 1)
+						right = N - 1;
+					
+					for (l = left; l <= right; l++)
 					{
-						int d = getMax(abs(i-l),abs(j-m));
-						if (d != 0 && d <= dist[matrix[l][m]])
-							dist[matrix[l][m]] = d;
+						k = matrix[down][l];
+						int d = getMax(abs(i-down),abs(j-l));
+						if (dist[k] == N && d != 0) 
+						{
+							dist[k] = d;
+							nr++;
+						}
+						k = matrix[up][l];
+						d = getMax(abs(i-up),abs(j-l));
+						if (dist[k] == N && d != 0) 
+						{
+							dist[k] = d;
+							nr++;
+						}
 					}
+					for (m = down; m <= up; m++)
+					{
+						k = matrix[m][left];
+						int d = getMax(abs(i-m),abs(j-left));
+						if (dist[k] == N && d != 0) 
+						{
+							dist[k] = d;
+							nr++;
+						}
+						k = matrix[m][right];
+						d = getMax(abs(i-m),abs(j-right));
+						if (dist[k] == N && d != 0) 
+						{
+							dist[k] = d;
+							nr++;
+						}	
+					}
+					radius++;
+				}
 				
 				for (k = 0; k < Nc; k++)
-					if (dist[k] > max && colorsCopy[k] != 0) 
+					if (dist[k] > max && dist[k] != N) 
 					{
 						max = dist[k];
 						c_max = k;
@@ -123,8 +171,13 @@ int main(int argc, char **argv)
 			}
 			// afisez numarul de senatori din fiecare partid
 			int p;
+			current = 0;
 			for (p = 0; p < Nc; p++)
+			{
 				fprintf(fsout, "%d ", colors[p]);
+				if (colors[p] != 0)
+					current++;
+			}
 			fprintf(fsout, "\n");
 			// actualizez configuratia pentru urmatoarea saptamana
 			copyMatrix(matrix,matrixWeekEnd);

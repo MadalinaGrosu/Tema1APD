@@ -86,9 +86,8 @@ int main(int argc, char **argv)
 	{	
 		initializeArray(colors,Nc,0);
 		//pentru fiecare senator determin noua lui culoare
-		#pragma omp parallel for private(i) shared(colors,matrixWeekEnd) schedule(runtime)
+		#pragma omp parallel for private(i,j) shared(colors,matrixWeekEnd) schedule(runtime)
 			for (i = 0; i < N; i++)
-			#pragma omp parallel for private(j)
 				for (j = 0; j < N; j++)
 				{
 					int k, l, m;
